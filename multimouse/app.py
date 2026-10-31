@@ -276,6 +276,50 @@ def _launch_options():
     return opts
 
 
+def _setup_tray(window, lang):
+    """Windows: minimizing hides the window to the notification area instead of the taskbar."""
+    import System.Windows.Forms as WinForms
+    from System import Func, Type
+    from System.Drawing import Icon
+
+    form = window.native
+
+    def build():
+        tray = WinForms.NotifyIcon()
+        tray.Icon = Icon(resource("assets", "icon.ico"))
+        tray.Text = APP_NAME
+
+        def restore(*_):
+            form.Show()
+            form.WindowState = WinForms.FormWindowState.Normal
+            form.Activate()
+
+        def on_click(sender, args):
+            if args.Button == WinForms.MouseButtons.Left:
+                restore()
+
+        def on_resize(*_):
+            if form.WindowState == WinForms.FormWindowState.Minimized and form.Visible:
+                form.Hide()
+
+        def on_closed(*_):
+            tray.Visible = False
+            tray.Dispose()
+
+        menu = WinForms.ContextMenuStrip()
+        menu.Items.Add("Ouvrir MultiMouse" if lang == "fr" else "Open MultiMouse").Click += restore
+        menu.Items.Add("Quitter" if lang == "fr" else "Quit").Click += lambda *_: form.Close()
+        tray.ContextMenuStrip = menu
+        tray.MouseClick += on_click
+        form.Resize += on_resize
+        form.FormClosed += on_closed
+        tray.Visible = True
+        on_resize()  # started minimized ("start with Windows" shortcut)
+        return None
+
+    form.Invoke(Func[Type](build))
+
+
 def _setup_logging():
     """Errors go to multimouse.log next to settings.json (the windowed app has no console)."""
     import logging
@@ -326,6 +370,14 @@ def main():
     def on_loaded():
         api._start_engine() if api._engine is None else api._notify()
 
+    def on_shown():
+        try:
+            _setup_tray(window, api.get_state()["lang"])
+        except Exception:
+            logging.getLogger("multimouse").exception("icône de la zone de notification")
+
     window.events.loaded += on_loaded
     window.events.closed += api.shutdown
+    if pi.OS == "windows":
+        window.events.shown += on_shown
     webview.start(debug="--debug" in sys.argv)
