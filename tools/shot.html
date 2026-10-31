@@ -25,7 +25,7 @@ const role = q.get("role") || "server";
 const base = {
   version: "1.0.8", os: q.get("os") || "windows", id: "pc", name: "PC Bureau", code: "K7M4QX", port: 24800,
   server_host: "", clipboard: true, swap_ctrl_cmd: true, speed: 1.2, role, permissions: null,
-  language: q.get("lang") || "auto", lang: q.get("lang") || "fr",
+  language: q.get("lang") || "auto", lang: q.get("lang") || "fr", theme: q.get("apptheme") || "auto",
 };
 const server = {
   ...base, error: "", connected: 2, ips: ["192.168.1.20"],

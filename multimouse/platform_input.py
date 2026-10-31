@@ -37,6 +37,8 @@ if OS == "windows":  # private handle: pseudo-handles need a pointer-sized retur
     _k32.SetPriorityClass.argtypes = [wintypes.HANDLE, wintypes.DWORD]
     _k32.SetThreadPriority.argtypes = [wintypes.HANDLE, ctypes.c_int]
     _k32.SetProcessInformation.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+    _k32.OpenProcess.restype = wintypes.HANDLE
+    _k32.CloseHandle.argtypes = [wintypes.HANDLE]
 
 
 def _keep_awake():
@@ -284,6 +286,25 @@ LLMHF_INJECTED = 0x01
 _WIN_BUTTONS = {WM_LBUTTONDOWN: ("left", True), WM_LBUTTONUP: ("left", False),
                 WM_RBUTTONDOWN: ("right", True), WM_RBUTTONUP: ("right", False),
                 WM_MBUTTONDOWN: ("middle", True), WM_MBUTTONUP: ("middle", False)}
+
+
+def foreground_app():
+    """Windows: executable name of the window in front (for the log), or ''."""
+    if OS != "windows":
+        return ""
+    try:
+        import os
+        pid = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(user32.GetForegroundWindow(), ctypes.byref(pid))
+        h = _k32.OpenProcess(0x1000, False, pid.value)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return "?"
+        buf, size = ctypes.create_unicode_buffer(260), wintypes.DWORD(260)
+        ok = _k32.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(size))
+        _k32.CloseHandle(h)
+        return os.path.basename(buf.value) if ok else "?"
+    except Exception:
+        return "?"
 
 
 def _signed16(v):

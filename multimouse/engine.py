@@ -134,7 +134,7 @@ class ServerEngine:
                 quiet = time.monotonic() - self.capture.last_event > 1.5
                 recent_warp = time.monotonic() - self.last_switch < 2.0
                 if not self.capture.alive() or (quiet and last_pos and pos != last_pos and not recent_warp):
-                    log.warning("capture de la souris inactive : réinstallation des hooks")
+                    log.warning("capture de la souris inactive (devant : %s) : réinstallation des hooks", pi.foreground_app())
                     self.capture.restart()
                 last_pos = pos
             except Exception:

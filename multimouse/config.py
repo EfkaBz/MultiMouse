@@ -21,6 +21,7 @@ DEFAULTS = {
     "swap_ctrl_cmd": True,       # map Ctrl <-> Cmd when crossing Windows <-> Mac
     "speed": 1.0,                # remote pointer speed multiplier
     "autostart": False,
+    "theme": "auto",             # "auto" (system), "light" or "dark"
     "language": "auto",          # "auto" (system language), "fr" or "en"
 }
 

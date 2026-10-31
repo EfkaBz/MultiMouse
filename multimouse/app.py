@@ -121,7 +121,7 @@ class Api:
         base = {"version": __version__, "os": pi.OS, "id": c["id"], "name": c["name"], "code": c["code"],
                 "port": c["port"], "server_host": c["server_host"], "clipboard": c["clipboard"],
                 "swap_ctrl_cmd": c["swap_ctrl_cmd"], "speed": c["speed"], "role": c["role"],
-                "permissions": self._perms, "language": c["language"],
+                "permissions": self._perms, "language": c["language"], "theme": c["theme"],
                 "lang": c["language"] if c["language"] in ("fr", "en") else system_language()}
         eng = self._engine
         if eng is not None:
@@ -136,7 +136,7 @@ class Api:
 
     def set_setting(self, key, value):
         allowed = {"clipboard": bool, "swap_ctrl_cmd": bool, "speed": float, "name": str,
-                   "server_host": str, "code": str, "port": int, "language": str}
+                   "server_host": str, "code": str, "port": int, "language": str, "theme": str}
         if key not in allowed:
             return False
         value = allowed[key](value)
@@ -149,6 +149,8 @@ class Api:
         if key == "speed":
             value = min(max(value, 0.3), 3.0)
         if key == "language" and value not in ("auto", "fr", "en"):
+            return False
+        if key == "theme" and value not in ("auto", "light", "dark"):
             return False
         self._cfg.set(**{key: value})
         if key in ("code", "port", "clipboard"):
@@ -198,6 +200,7 @@ class Api:
 
 
 MUTEX_NAME = "MultiMouseSingleInstance"  # also referenced by installer/MultiMouse.iss (AppMutex)
+ELEVATED_TASK = "MultiMouse"  # scheduled task registered by installer/MultiMouse.iss
 
 
 def _already_running():
@@ -205,16 +208,72 @@ def _already_running():
     if pi.OS != "windows":
         return False
     import ctypes
-    k32 = ctypes.windll.kernel32
+    import time
+    k32 = _already_running.k32 = ctypes.WinDLL("kernel32")  # private: argtypes must not leak into pynput
     k32.CreateMutexW.restype = ctypes.c_void_p
-    _already_running.handle = k32.CreateMutexW(None, False, MUTEX_NAME)
-    if k32.GetLastError() != 183:  # ERROR_ALREADY_EXISTS
-        return False
+    k32.CloseHandle.argtypes = [ctypes.c_void_p]
+    # Started by _relaunch_elevated: the launcher may still hold the mutex for a moment
+    tries = 30 if "--elevated" in sys.argv else 1
+    for i in range(tries):
+        _already_running.handle = k32.CreateMutexW(None, False, MUTEX_NAME)
+        # ERROR_ALREADY_EXISTS, or ERROR_ACCESS_DENIED when the running one has administrator rights
+        if k32.GetLastError() not in (183, 5):
+            return False
+        if i < tries - 1:
+            if _already_running.handle:
+                k32.CloseHandle(_already_running.handle)
+            time.sleep(0.1)
     hwnd = pi.user32.FindWindowW(None, APP_NAME)
     if hwnd:
         pi.user32.ShowWindow(hwnd, 9)  # SW_RESTORE
         pi.user32.SetForegroundWindow(hwnd)
     return True
+
+
+def _relaunch_elevated():
+    """Windows: run again with administrator rights, through the scheduled task the installer
+    registered (it runs elevated without a UAC prompt). Returns True when this process should quit.
+
+    Windows does not pass the mouse to the hooks of a normal process while a window running as
+    administrator is in front (Task Manager, or any app started as administrator): the pointer
+    then stops switching until a normal window is clicked."""
+    if pi.OS != "windows" or not getattr(sys, "frozen", False) or "--elevated" in sys.argv:
+        return False
+    import ctypes
+    import subprocess
+    import time
+    from .config import config_dir
+    if ctypes.windll.shell32.IsUserAnAdmin():
+        return False
+    try:  # the task has fixed arguments: pass this launch's options through a file
+        with open(os.path.join(config_dir(), "launch.json"), "w", encoding="utf-8") as f:
+            json.dump({"minimized": "--minimized" in sys.argv, "time": time.time()}, f)
+        r = subprocess.run(["schtasks", "/run", "/tn", ELEVATED_TASK], capture_output=True,
+                           creationflags=0x08000000)  # CREATE_NO_WINDOW
+    except OSError:
+        return False
+    if r.returncode != 0:
+        return False
+    _already_running.k32.CloseHandle(_already_running.handle)  # let it start now
+    return True
+
+
+def _launch_options():
+    """Options of the launch that handed over to the elevated task (see _relaunch_elevated)."""
+    opts = {"minimized": "--minimized" in sys.argv}
+    if "--elevated" in sys.argv:
+        import time
+        from .config import config_dir
+        path = os.path.join(config_dir(), "launch.json")
+        try:
+            with open(path, encoding="utf-8") as f:
+                saved = json.load(f)
+            os.remove(path)
+            if time.time() - saved.get("time", 0) < 30:
+                opts["minimized"] = bool(saved.get("minimized"))
+        except (OSError, ValueError):
+            pass
+    return opts
 
 
 def _setup_logging():
@@ -235,9 +294,15 @@ def _setup_logging():
 
 
 def main():
-    if _already_running():
+    if _already_running() or _relaunch_elevated():
         return
     _setup_logging()
+    if pi.OS == "windows":
+        import ctypes
+        if not ctypes.windll.shell32.IsUserAnAdmin():
+            logging.getLogger("multimouse").warning(
+                "sans droits administrateur : le pointeur ne passera pas tant qu'une fenêtre administrateur est devant")
+    opts = _launch_options()
     import webview
 
     api = Api()
@@ -254,7 +319,7 @@ def main():
         width=int(1060 * k), height=int(700 * k), min_size=(int(880 * k), int(580 * k)),
         background_color="#F5F5F7",
         text_select=False,
-        minimized="--minimized" in sys.argv,  # used by the "start with Windows" shortcut
+        minimized=opts["minimized"],  # used by the "start with Windows" shortcut
     )
     api._window = window
 

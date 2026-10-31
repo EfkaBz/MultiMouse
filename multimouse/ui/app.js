@@ -411,19 +411,57 @@ $("#in-speed").addEventListener("change", (e) => call("set_setting", "speed", pa
 /* ------------------------------------------------------------------ */
 /*  Render                                                             */
 /* ------------------------------------------------------------------ */
+/* Three-way choices (Auto / ... / ...): the thumb slides under the selected button. */
+function setSeg(sel, attr, value) {
+  const buttons = $$(sel + " button");
+  $(sel).dataset.index = Math.max(0, buttons.findIndex((b) => b.dataset[attr] === value));
+}
+
 $$("#lang-seg button").forEach((b) =>
   b.addEventListener("click", () => {
     if (!S || S.language === b.dataset.lang) return;
     S.language = b.dataset.lang;
-    $("#lang-seg").dataset.value = b.dataset.lang;
+    setSeg("#lang-seg", "lang", S.language);
     call("set_setting", "language", b.dataset.lang);  // Python answers with the resolved S.lang
+  })
+);
+
+/* Theme: the stylesheet's dark rules live in @media (prefers-color-scheme: dark) blocks.
+   Forcing a theme rewrites their media condition: "all" (always dark) or "not all" (never). */
+const DARK_MEDIA = "(prefers-color-scheme: dark)";
+let darkRules = null;
+function applyTheme(theme) {
+  if (!darkRules) {
+    darkRules = [];
+    for (const sheet of document.styleSheets) {
+      for (const r of sheet.cssRules) if (r.media && r.media.mediaText.includes("prefers-color-scheme: dark")) darkRules.push(r);
+    }
+  }
+  const media = theme === "dark" ? "all" : theme === "light" ? "not all" : DARK_MEDIA;
+  if (applyTheme.current === media) return;
+  const fade = applyTheme.current !== undefined;  // no cross-fade when the app opens
+  applyTheme.current = media;
+  if (fade) document.documentElement.classList.add("theme-switch");
+  for (const r of darkRules) r.media.mediaText = media;
+  if (fade) setTimeout(() => document.documentElement.classList.remove("theme-switch"), 450);
+}
+
+$$("#theme-seg button").forEach((b) =>
+  b.addEventListener("click", () => {
+    if (!S || S.theme === b.dataset.theme) return;
+    S.theme = b.dataset.theme;
+    setSeg("#theme-seg", "theme", S.theme);
+    applyTheme(S.theme);
+    call("set_setting", "theme", S.theme);
   })
 );
 
 function render() {
   if (!S) return;
   if (setLang(S.lang)) tiles.forEach((el) => (el._key = null));  // rebuild the translated badges
-  $("#lang-seg").dataset.value = S.language || "auto";
+  setSeg("#lang-seg", "lang", S.language || "auto");
+  setSeg("#theme-seg", "theme", S.theme || "auto");
+  applyTheme(S.theme || "auto");
   document.body.dataset.role = S.role;
   document.body.dataset.os = S.os;
   $("#role-seg").dataset.value = S.role;

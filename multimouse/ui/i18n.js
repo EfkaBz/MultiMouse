@@ -32,6 +32,7 @@ const STRINGS = {
 
     "set.general": "Général", "set.name": "Nom de cet ordinateur",
     "set.language": "Langue", "set.language.auto": "Auto",
+    "set.theme": "Thème", "set.theme.light": "Clair", "set.theme.dark": "Sombre",
     "set.control": "Contrôle", "set.speed": "Vitesse du pointeur distant",
     "set.swap": "Inverser Ctrl et ⌘ entre Mac et PC", "set.swap.sub": "Vos raccourcis restent naturels sur chaque système",
     "set.sharing": "Partage", "set.clip": "Presse-papiers partagé", "set.clip.sub": "Copiez du texte sur un ordinateur, collez-le sur l'autre",
@@ -105,6 +106,7 @@ const STRINGS = {
 
     "set.general": "General", "set.name": "Name of this computer",
     "set.language": "Language", "set.language.auto": "Auto",
+    "set.theme": "Appearance", "set.theme.light": "Light", "set.theme.dark": "Dark",
     "set.control": "Control", "set.speed": "Remote pointer speed",
     "set.swap": "Swap Ctrl and ⌘ between Mac and PC", "set.swap.sub": "Your shortcuts stay natural on each system",
     "set.sharing": "Sharing", "set.clip": "Shared clipboard", "set.clip.sub": "Copy text on one computer, paste it on another",
