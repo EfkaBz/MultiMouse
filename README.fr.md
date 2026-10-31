@@ -18,6 +18,7 @@
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/macOS-11%2B-000000?logo=apple&logoColor=white" alt="macOS 11+">
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-34C759" alt="GPL-3.0"></a>
 </p>
 
 <p align="center">
@@ -177,3 +178,7 @@ docs/captures/        images des README (en/, fr/)
 build.py              compilation
 ```
 </details>
+
+## 📄 Licence
+
+MultiMouse est un logiciel libre et gratuit, distribué sous licence [GNU GPL v3](LICENSE) : vous pouvez l'utiliser, l'étudier, le modifier et le partager, à condition que les versions modifiées que vous distribuez restent libres, sous la même licence.
