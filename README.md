@@ -22,8 +22,8 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/screens-dark.png">
-    <img src="docs/screenshots/screens-light.png" width="860" alt="Disposition des écrans dans MultiMouse">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/captures/screens-dark.png">
+    <img src="docs/captures/screens-light.png" width="860" alt="Disposition des écrans dans MultiMouse">
   </picture>
 </p>
 
@@ -56,15 +56,15 @@
   <tr>
     <td width="50%" align="center">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/devices-dark.png">
-        <img src="docs/screenshots/devices-light.png" alt="Appareils et code d'appairage">
+        <source media="(prefers-color-scheme: dark)" srcset="docs/captures/devices-dark.png">
+        <img src="docs/captures/devices-light.png" alt="Appareils et code d'appairage">
       </picture>
       <br><sub><b>Appareils</b> : code d'appairage et ordinateurs connectés</sub>
     </td>
     <td width="50%" align="center">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/client-dark.png">
-        <img src="docs/screenshots/client-light.png" alt="Ordinateur contrôlé">
+        <source media="(prefers-color-scheme: dark)" srcset="docs/captures/client-dark.png">
+        <img src="docs/captures/client-light.png" alt="Ordinateur contrôlé">
       </picture>
       <br><sub><b>Contrôlé</b> : un Mac piloté par la souris du PC</sub>
     </td>
@@ -72,8 +72,8 @@
   <tr>
     <td colspan="2" align="center">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/settings-dark.png">
-        <img src="docs/screenshots/settings-light.png" width="65%" alt="Réglages">
+        <source media="(prefers-color-scheme: dark)" srcset="docs/captures/settings-dark.png">
+        <img src="docs/captures/settings-light.png" width="65%" alt="Réglages">
       </picture>
       <br><sub><b>Réglages</b> : vitesse du pointeur, Ctrl ↔ ⌘, presse-papiers</sub>
     </td>
@@ -161,7 +161,7 @@ multimouse/
   assets/             icônes
 installer/            script Inno Setup (Windows), fond du .dmg (mac/)
 tools/                icônes, fond du .dmg, certificat Mac, captures d'écran
-docs/screenshots/     images de ce README
+docs/captures/     images de ce README
 build.py              compilation
 ```
 </details>

@@ -1,4 +1,4 @@
-"""Render the README screenshots (docs/screenshots) with headless Chrome or Edge.
+"""Render the README screenshots (docs/captures) with headless Chrome or Edge.
 
     python tools/screenshots.py
 """
@@ -12,7 +12,7 @@ import threading
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "docs", "screenshots")
+OUT = os.path.join(ROOT, "docs", "captures")
 
 PAGES = {  # file prefix -> query string for tools/shot.html
     "screens": "view=screens",
