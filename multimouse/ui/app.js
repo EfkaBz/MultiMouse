@@ -23,8 +23,19 @@ const DISPLAY_ICON = '<svg class="os" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0
 const LAPTOP_ICON = '<svg viewBox="0 0 24 24"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5V15h-17V6.5A1.5 1.5 0 0 1 5 5Zm-3.5 11.5h21l-.6 1.3a1.5 1.5 0 0 1-1.4.9H3.5a1.5 1.5 0 0 1-1.4-.9l-.6-1.3Z"/></svg>';
 
 function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
+const wallIndex = new Map(); // id -> palette slot, kept distinct between the computers on screen
+function assignWalls(ids) {
+  const used = new Set();
+  wallIndex.clear();
+  for (const id of [...ids].sort()) {
+    let i = hash(id) % WALLS.length;
+    for (let k = 0; k < WALLS.length && used.has(i); k++) i = (i + 1) % WALLS.length;
+    used.add(i);
+    wallIndex.set(id, i);
+  }
+}
 function wall(id) {
-  const [a, b, c] = WALLS[hash(id) % WALLS.length];
+  const [a, b, c] = WALLS[wallIndex.get(id) ?? hash(id) % WALLS.length];
   return `linear-gradient(135deg, ${a} 0%, ${b} 55%, ${c} 100%)`;
 }
 function esc(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
@@ -137,6 +148,7 @@ function renderCanvas() {
   const W = canvas.clientWidth, H = canvas.clientHeight;
   if (!W) return;
   T = fitTransform(nodes, W, H);
+  assignWalls(nodes.map((n) => n.id));
 
   const seen = new Set();
   for (const n of nodes) {
