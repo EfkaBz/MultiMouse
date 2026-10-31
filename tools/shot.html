@@ -23,7 +23,7 @@
 const q = new URLSearchParams(location.search);
 const role = q.get("role") || "server";
 const base = {
-  version: "1.0.3", os: q.get("os") || "windows", id: "pc", name: "PC Bureau", code: "K7M4QX", port: 24800,
+  version: "1.0.7", os: q.get("os") || "windows", id: "pc", name: "PC Bureau", code: "K7M4QX", port: 24800,
   server_host: "", clipboard: true, swap_ctrl_cmd: true, speed: 1.2, role, permissions: null,
 };
 const server = {
@@ -51,12 +51,12 @@ function forceTheme(doc, theme) {
       const r = rules[i];
       // not instanceof: the iframe has its own CSSMediaRule class
       if (!r.media || !/prefers-color-scheme/.test(r.media.mediaText)) continue;
-      if (theme === "light") sheet.deleteRule(i);
+      if (theme === "light") sheet.deleteRule(i);  // dark: Chrome runs with --force-dark-mode
       else { const css = [...r.cssRules].map((x) => x.cssText).join("\n"); sheet.deleteRule(i); sheet.insertRule(`@media all { ${css} }`, i); }
     }
   }
 }
-const theme = q.get("theme");
+const theme = q.get("theme") === "light" ? "light" : null;
 if (theme) forceTheme(document, theme);
 document.getElementById("app").addEventListener("load", (e) => {
   const w = e.target.contentWindow;
