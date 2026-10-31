@@ -54,8 +54,12 @@ en.Launch=Launch MultiMouse
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 Name: "startup"; Description: "{cm:StartWithWindows}"; GroupDescription: "{cm:OtherTasks}"
 
+[InstallDelete]
+; Files of the previous version (they all live in _internal)
+Type: filesandordirs; Name: "{app}\_internal"
+
 [Files]
-Source: "{#DistDir}\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#DistDir}\{#AppName}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"

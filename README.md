@@ -134,7 +134,7 @@ python -m multimouse
 
 ```bash
 python -m pip install -r requirements.txt pyinstaller pillow
-python build.py                 # MultiMouse.exe (Windows) ou MultiMouse.app (macOS) dans dist/
+python build.py                 # dossier MultiMouse/ (Windows) ou MultiMouse.app (macOS) dans dist/
 python build.py --installer     # + MultiMouse-Setup-x.y.z.exe (Windows, Inno Setup 6) ou MultiMouse-x.y.z.dmg (macOS)
 python build.py --out <dossier> # résultats ailleurs que dans dist/
 ```

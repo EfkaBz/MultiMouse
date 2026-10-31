@@ -5,7 +5,7 @@
     python build.py --installer     # + installer -> dist/ (Windows: needs Inno Setup 6; macOS: .dmg)
     python build.py --out <dir>     # put the results somewhere else
 
-Windows: dist/MultiMouse.exe and dist/MultiMouse-Setup-<version>.exe
+Windows: dist/MultiMouse/ (MultiMouse.exe and its files) and dist/MultiMouse-Setup-<version>.exe
 macOS:   dist/MultiMouse.app and dist/MultiMouse-<version>.dmg (build on a Mac)
 """
 import argparse
@@ -55,7 +55,9 @@ def build_app(out, work):
     if sys.platform == "darwin":
         args += ["--icon", os.path.join(ASSETS, "icon.png"), "--osx-bundle-identifier", "app.multimouse"]
     else:
-        args += ["--onefile", "--icon", os.path.join(ASSETS, "icon.ico"),
+        # A folder, not --onefile: a single exe that unpacks itself at launch is what antivirus
+        # heuristics flag most (Windows Defender quarantined several onefile builds).
+        args += ["--icon", os.path.join(ASSETS, "icon.ico"),
                  "--version-file", write_version_file(work)]
     PyInstaller.__main__.run(args)
     if sys.platform == "darwin":
