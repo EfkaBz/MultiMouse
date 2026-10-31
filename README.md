@@ -19,6 +19,7 @@
   <img src="https://img.shields.io/badge/macOS-11%2B-000000?logo=apple&logoColor=white" alt="macOS 11+">
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-34C759" alt="GPL-3.0"></a>
+  <a href="https://ko-fi.com/daelerbackbi"><img src="https://img.shields.io/badge/Ko--fi-support-FF5E5B?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
 </p>
 
 <p align="center">
@@ -182,3 +183,5 @@ build.py              build
 ## 📄 License
 
 MultiMouse is free and open source software, released under the [GNU GPL v3](LICENSE) license: you can use, study, modify and share it, as long as modified versions you distribute stay open source under the same license.
+
+If MultiMouse is useful to you, you can support its development on [Ko-fi](https://ko-fi.com/daelerbackbi) ☕ Thank you!
