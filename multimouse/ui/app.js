@@ -42,22 +42,16 @@ function esc(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp
 
 let toastTimer;
 function toast(msg) {
-  const t = $("#toast");
-  t.textContent = msg;
-  t.classList.add("show");
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 1800);
 }
 
 /* ------------------------------------------------------------------ */
 /*  Navigation & role                                                  */
 /* ------------------------------------------------------------------ */
-const TITLES = {
-  screens: ["Écrans", { server: "Disposez vos ordinateurs comme ils le sont sur votre bureau.", client: "Cet ordinateur est piloté par la souris d'un autre." }],
-  devices: ["Appareils", { server: "Associez les ordinateurs à contrôler.", client: "Associez cet ordinateur au contrôleur." }],
-  settings: ["Réglages", { server: "Ajustez le comportement de MultiMouse.", client: "Ajustez le comportement de MultiMouse." }],
-};
-
 function setView(v) {
   view = v;
   $$(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.view === v));
@@ -83,8 +77,8 @@ $$("#role-seg button").forEach((b) =>
 
 function renderHeader() {
   const role = S ? S.role : "server";
-  $("#title").textContent = TITLES[view][0];
-  $("#subtitle").textContent = TITLES[view][1][role];
+  $("#title").textContent = t("nav." + view);
+  $("#subtitle").textContent = t(view === "settings" ? "title.settings" : `title.${view}.${role}`);
 }
 
 /* ------------------------------------------------------------------ */
@@ -97,16 +91,16 @@ function renderStatus() {
     const n = S.connected || 0;
     const active = (S.nodes || []).find((x) => x.active);
     cls = S.error ? "err" : n ? "on" : "wait";
-    title = S.error ? "Erreur réseau" : n ? (active && !active.me ? "Pilote " + active.name : "Prêt") : "En attente";
-    sub = S.error || (n ? `${n} ordinateur${n > 1 ? "s" : ""} connecté${n > 1 ? "s" : ""}` : "Aucun ordinateur connecté");
-    $("#brand-role").textContent = "Contrôleur";
+    title = S.error ? t("st.neterror") : n ? (active && !active.me ? t("st.driving", { name: active.name }) : t("st.ready")) : t("st.waiting");
+    sub = S.error ? t("err." + S.error, { port: S.port }) : n ? t(n > 1 ? "st.connected.many" : "st.connected.one", { n }) : t("st.none");
+    $("#brand-role").textContent = t("role.server");
   } else {
     const st = S.status;
     cls = st === "connected" ? "on" : st === "refused" ? "err" : "wait";
-    title = { connected: S.active ? "Piloté" : "Connecté", connecting: "Connexion…", refused: "Connexion refusée",
-              connected_lost: "Connexion perdue", searching: "Recherche…" }[st] || "…";
-    sub = st === "connected" ? S.server_name : st === "refused" ? "Vérifiez le code" : "Contrôleur introuvable";
-    $("#brand-role").textContent = "Contrôlé";
+    title = { connected: t(S.active ? "st.piloted" : "st.connected"), connecting: t("st.connecting"), refused: t("st.refused"),
+              connected_lost: t("st.lost"), searching: t("st.searching") }[st] || "…";
+    sub = st === "connected" ? S.server_name : st === "refused" ? t("st.checkcode") : t("st.noserver");
+    $("#brand-role").textContent = t("role.client");
   }
   dot.className = "dot " + cls;
   $("#status-title").textContent = title;
@@ -175,10 +169,10 @@ function renderCanvas() {
       ? n.monitors.map((m) => `<div class="mon" style="left:${(m.x / n.w) * 100}%;top:${(m.y / n.h) * 100}%;width:${(m.w / n.w) * 100}%;height:${(m.h / n.h) * 100}%"></div>`).join("")
       : "";
     const linked = nodes.length < 2 || nodes.some((o) => o !== n && touching(n, o));
-    const badge = !n.online ? `<span class="badge gray">Hors ligne</span>`
-      : !linked ? `<span class="badge warn" title="Collez cet écran contre un autre pour que le pointeur puisse y passer">Non relié</span>`
-      : n.active && S.connected ? `<span class="badge">Pointeur</span>`
-      : n.me ? `<span class="badge gray">Cet ordinateur</span>` : "";
+    const badge = !n.online ? `<span class="badge gray">${t("badge.offline")}</span>`
+      : !linked ? `<span class="badge warn" title="${esc(t("badge.unlinked.tip"))}">${t("badge.unlinked")}</span>`
+      : n.active && S.connected ? `<span class="badge">${t("badge.pointer")}</span>`
+      : n.me ? `<span class="badge gray">${t("badge.me")}</span>` : "";
     const key = [n.name, n.w, n.h, n.os, badge, mons, n.online].join("|");
     if (el._key !== key) {
       el._key = key;
@@ -188,8 +182,8 @@ function renderCanvas() {
       el.querySelectorAll(".badge, .forget").forEach((x) => x.remove());
       if (badge) el.insertAdjacentHTML("beforeend", badge);
       if (!n.online && !n.me) {
-        el.insertAdjacentHTML("beforeend", `<button class="forget" title="Oublier">×</button>`);
-        el.querySelector(".forget").addEventListener("pointerdown", (e) => { e.stopPropagation(); call("forget", n.id); toast(`${n.name} oublié`); });
+        el.insertAdjacentHTML("beforeend", `<button class="forget" title="${esc(t("forget"))}">×</button>`);
+        el.querySelector(".forget").addEventListener("pointerdown", (e) => { e.stopPropagation(); call("forget", n.id); toast(t("forgotten", { name: n.name })); });
       }
     }
   }
@@ -277,7 +271,7 @@ function endDrag() {
   const clash = S.nodes.some((o) => o.id !== d.n.id && overlaps(moved, o));
   if (!d.moved) { renderCanvas(); return; }
   if (clash) {
-    toast("Les écrans ne peuvent pas se chevaucher");
+    toast(t("toast.overlap"));
   } else {
     d.n.x = d.x; d.n.y = d.y;
     call("set_layout", d.n.id, d.x, d.y);
@@ -298,20 +292,21 @@ function renderClientPanel() {
   const sp = $("#client-spinner");
   sp.className = "spinner" + (st === "connected" ? " done" : st === "refused" ? " fail" : "");
   const texts = {
-    searching: ["Recherche du contrôleur…", "Le contrôleur et cet ordinateur doivent être sur le même réseau."],
-    connecting: ["Connexion en cours…", `Connexion à ${S.server_addr}`],
-    connected: [S.active ? `Piloté par ${S.server_name}` : `Connecté à ${S.server_name}`, S.active ? "La souris et le clavier du contrôleur agissent ici." : "Amenez le pointeur au bord de l'écran du contrôleur pour venir ici."],
-    refused: ["Connexion refusée", "Vérifiez que le code d'appairage est identique sur les deux ordinateurs (onglet Appareils)."],
-    connected_lost: ["Connexion perdue", "Nouvelle tentative…"],
+    searching: [t("client.searching"), t("client.searching.sub")],
+    connecting: [t("client.connecting"), t("client.connecting.sub", { addr: S.server_addr })],
+    connected: S.active ? [t("client.piloted", { name: S.server_name }), t("client.piloted.sub")]
+                        : [t("client.connected", { name: S.server_name }), t("client.connected.sub")],
+    refused: [t("st.refused"), t("client.refused.sub")],
+    connected_lost: [t("st.lost"), t("client.lost.sub")],
   };
-  const [t, s] = texts[st] || texts.searching;
-  $("#client-title").textContent = t;
-  $("#client-sub").textContent = s;
+  const [title, sub] = texts[st] || texts.searching;
+  $("#client-title").textContent = title;
+  $("#client-sub").textContent = sub;
 
   const list = $("#server-list");
   const servers = S.servers || [];
   $("#server-list-group").style.display = st === "connected" && !S.server_host ? "none" : "";
-  const sig = JSON.stringify(servers) + S.server_host + S.server_addr + st;
+  const sig = JSON.stringify(servers) + S.server_host + S.server_addr + st + LANG;
   if (list._sig === sig) return;
   list._sig = sig;
   list.innerHTML = servers.length
@@ -319,11 +314,11 @@ function renderClientPanel() {
         const current = st === "connected" && S.server_addr === sv.addr;
         return `<div class="row"><div class="lead"><div class="dev-icon" style="background:${wall(sv.addr)}">${LAPTOP_ICON}</div>
           <div class="row-text"><div class="row-title">${esc(sv.name)}</div><div class="row-sub">${esc(sv.addr)}</div></div></div>
-          ${current ? '<span class="pill on">Connecté</span>' : `<button class="btn" data-addr="${esc(sv.addr)}">Se connecter</button>`}</div>`;
+          ${current ? `<span class="pill on">${t("pill.connected")}</span>` : `<button class="btn" data-addr="${esc(sv.addr)}">${t("client.connect")}</button>`}</div>`;
       }).join("")
-    : `<div class="empty-row">Aucun contrôleur détecté pour l'instant.</div>`;
+    : `<div class="empty-row">${t("client.none")}</div>`;
   list.querySelectorAll("button[data-addr]").forEach((b) =>
-    b.addEventListener("click", () => { call("connect_to", b.dataset.addr); toast("Connexion à " + b.dataset.addr); }));
+    b.addEventListener("click", () => { call("connect_to", b.dataset.addr); toast(t("client.connect.toast", { addr: b.dataset.addr })); }));
 }
 
 /* ------------------------------------------------------------------ */
@@ -347,19 +342,19 @@ function renderDevices() {
   if (!isServer) return;
   const list = $("#device-list");
   const others = (S.nodes || []).filter((n) => !n.me);
-  const sig = JSON.stringify(others.map((n) => [n.id, n.name, n.online, n.active, n.addr]));
+  const sig = JSON.stringify(others.map((n) => [n.id, n.name, n.online, n.active, n.addr])) + LANG;
   if (list._sig === sig) return;
   list._sig = sig;
   list.innerHTML = others.length
     ? others.map((n) => `<div class="row"><div class="lead"><div class="dev-icon" style="background:${n.online ? wall(n.id) : ""}">${LAPTOP_ICON}</div>
         <div class="row-text"><div class="row-title">${esc(n.name)}</div><div class="row-sub">${OS_NAME[n.os] || n.os} · ${n.w} × ${n.h}${n.addr ? " · " + esc(n.addr) : ""}</div></div></div>
-        ${n.active ? '<span class="pill accent">Pointeur ici</span>' : n.online ? '<span class="pill on">Connecté</span>' : `<button class="btn ghost" data-forget="${n.id}">Oublier</button>`}</div>`).join("")
-    : `<div class="empty-row">Aucun ordinateur associé. Saisissez le code ci-dessus sur un autre ordinateur.</div>`;
+        ${n.active ? `<span class="pill accent">${t("pill.pointer")}</span>` : n.online ? `<span class="pill on">${t("pill.connected")}</span>` : `<button class="btn ghost" data-forget="${n.id}">${t("forget")}</button>`}</div>`).join("")
+    : `<div class="empty-row">${t("devices.none")}</div>`;
   list.querySelectorAll("[data-forget]").forEach((b) => b.addEventListener("click", () => call("forget", b.dataset.forget)));
 }
 
-$("#btn-copy-code").addEventListener("click", () => { call("copy_text", S.code); toast("Code copié"); });
-$("#btn-new-code").addEventListener("click", () => { call("regenerate_code"); toast("Nouveau code généré — à saisir sur les autres ordinateurs"); });
+$("#btn-copy-code").addEventListener("click", () => { call("copy_text", S.code); toast(t("toast.copied")); });
+$("#btn-new-code").addEventListener("click", () => { call("regenerate_code"); toast(t("toast.newcode")); });
 
 /* ------------------------------------------------------------------ */
 /*  Settings                                                           */
@@ -381,10 +376,8 @@ function renderSettings() {
   $("#about").textContent = `MultiMouse ${S.version} · ${OS_NAME[S.os] || S.os}`;
   const p = S.permissions;
   if (p) {
-    const missing = [!p.accessibility && "Accessibilité", !p.input && "Surveillance de l'entrée"].filter(Boolean);
-    $("#perm-sub").textContent = missing.length
-      ? `À autoriser : ${missing.join(" et ")} (Réglages Système › Confidentialité et sécurité).`
-      : "Autorisées.";
+    const missing = [!p.accessibility && t("perms.accessibility"), !p.input && t("perms.input")].filter(Boolean);
+    $("#perm-sub").textContent = missing.length ? t("perms.missing", { list: missing.join(t("perms.and")) }) : t("perms.ok");
     $("#btn-perms").hidden = !missing.length;
   }
 }
@@ -401,14 +394,14 @@ function bindField(sel, key, ok) {
   const commit = async () => {
     if (S && String(S[key]) === el.value) return;
     const res = await call("set_setting", key, el.value);
-    if (res === false) { toast("Valeur invalide"); setField(sel, S[key]); } else if (ok) toast(ok);
+    if (res === false) { toast(t("toast.invalid")); setField(sel, S[key]); } else if (ok) toast(t(ok));
   };
   el.addEventListener("change", commit);
   el.addEventListener("keydown", (e) => { if (e.key === "Enter") el.blur(); });
 }
-bindField("#in-name", "name", "Nom enregistré");
-bindField("#in-port", "port", "Port modifié");
-bindField("#in-code", "code", "Code enregistré");
+bindField("#in-name", "name", "toast.name");
+bindField("#in-port", "port", "toast.port");
+bindField("#in-code", "code", "toast.code");
 bindField("#in-host", "server_host");
 $("#in-clip").addEventListener("change", (e) => call("set_setting", "clipboard", e.target.checked));
 $("#in-swap").addEventListener("change", (e) => call("set_setting", "swap_ctrl_cmd", e.target.checked));
@@ -418,8 +411,19 @@ $("#in-speed").addEventListener("change", (e) => call("set_setting", "speed", pa
 /* ------------------------------------------------------------------ */
 /*  Render                                                             */
 /* ------------------------------------------------------------------ */
+$$("#lang-seg button").forEach((b) =>
+  b.addEventListener("click", () => {
+    if (!S || S.language === b.dataset.lang) return;
+    S.language = b.dataset.lang;
+    $("#lang-seg").dataset.value = b.dataset.lang;
+    call("set_setting", "language", b.dataset.lang);  // Python answers with the resolved S.lang
+  })
+);
+
 function render() {
   if (!S) return;
+  if (setLang(S.lang)) tiles.forEach((el) => (el._key = null));  // rebuild the translated badges
+  $("#lang-seg").dataset.value = S.language || "auto";
   document.body.dataset.role = S.role;
   document.body.dataset.os = S.os;
   $("#role-seg").dataset.value = S.role;

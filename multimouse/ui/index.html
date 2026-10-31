@@ -30,22 +30,22 @@
     <nav class="nav">
       <button class="nav-item active" data-view="screens">
         <svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="11" height="8" rx="1.6"/><rect x="10.5" y="11" width="11" height="8" rx="1.6"/></svg>
-        <span>Écrans</span>
+        <span data-i18n="nav.screens">Écrans</span>
       </button>
       <button class="nav-item" data-view="devices">
         <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="11" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
-        <span>Appareils</span>
+        <span data-i18n="nav.devices">Appareils</span>
       </button>
       <button class="nav-item" data-view="settings">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4 5.3 5.3"/></svg>
-        <span>Réglages</span>
+        <span data-i18n="nav.settings">Réglages</span>
       </button>
     </nav>
 
     <div class="status-card" id="status-card">
       <span class="dot" id="status-dot"></span>
       <div>
-        <div class="status-title" id="status-title">Démarrage…</div>
+        <div class="status-title" id="status-title" data-i18n="status.starting">Démarrage…</div>
         <div class="status-sub" id="status-sub"></div>
       </div>
     </div>
@@ -59,8 +59,8 @@
       </div>
       <div class="segmented" id="role-seg">
         <span class="seg-thumb"></span>
-        <button data-role="server">Contrôleur</button>
-        <button data-role="client">Contrôlé</button>
+        <button data-role="server" data-i18n="role.server">Contrôleur</button>
+        <button data-role="client" data-i18n="role.client">Contrôlé</button>
       </div>
     </header>
 
@@ -72,62 +72,62 @@
           <div class="empty-art">
             <div class="mini-screen"></div><div class="mini-plus">+</div><div class="mini-screen ghost"></div>
           </div>
-          <h3>Ajoutez un autre ordinateur</h3>
-          <p>Installez MultiMouse sur votre autre PC ou Mac, choisissez <b>Contrôlé</b>,<br>puis saisissez le code d'appairage :</p>
+          <h3 data-i18n="empty.title">Ajoutez un autre ordinateur</h3>
+          <p data-i18n-html="empty.text">Installez MultiMouse sur votre autre PC ou Mac, choisissez <b>Contrôlé</b>,<br>puis saisissez le code d'appairage :</p>
           <div class="code-inline" id="empty-code">——————</div>
         </div>
         <div class="client-panel" id="client-panel">
-          <div class="client-screen" id="client-screen"><div class="wall"></div><span class="cursor-badge">Contrôlé</span></div>
+          <div class="client-screen" id="client-screen"><div class="wall"></div><span class="cursor-badge" data-i18n="role.client">Contrôlé</span></div>
           <div class="client-status">
             <div class="spinner" id="client-spinner"></div>
             <div>
-              <h3 id="client-title">Recherche du contrôleur…</h3>
-              <p id="client-sub">Le contrôleur et cet ordinateur doivent être sur le même réseau.</p>
+              <h3 id="client-title" data-i18n="client.searching">Recherche du contrôleur…</h3>
+              <p id="client-sub" data-i18n="client.searching.sub">Le contrôleur et cet ordinateur doivent être sur le même réseau.</p>
             </div>
           </div>
           <div class="group" id="server-list-group">
-            <div class="group-label">Contrôleurs trouvés sur le réseau</div>
+            <div class="group-label" data-i18n="client.found">Contrôleurs trouvés sur le réseau</div>
             <div class="list" id="server-list"></div>
           </div>
         </div>
       </div>
-      <p class="hint" id="canvas-hint">Glissez les écrans pour reproduire leur disposition réelle. Le pointeur passe d'un ordinateur à l'autre par les bords qui se touchent.</p>
+      <p class="hint" id="canvas-hint" data-i18n="canvas.hint">Glissez les écrans pour reproduire leur disposition réelle. Le pointeur passe d'un ordinateur à l'autre par les bords qui se touchent.</p>
     </section>
 
     <!-- APPAREILS -->
     <section class="view" id="view-devices">
       <div class="pair-card card" id="pair-server">
         <div class="pair-left">
-          <div class="eyebrow">Code d'appairage</div>
+          <div class="eyebrow" data-i18n="pair.code">Code d'appairage</div>
           <div class="code-boxes" id="code-boxes"></div>
-          <p class="muted">Saisissez ce code sur chaque ordinateur à contrôler. Toutes les communications sont chiffrées avec ce code.</p>
+          <p class="muted" data-i18n="pair.code.help">Saisissez ce code sur chaque ordinateur à contrôler. Toutes les communications sont chiffrées avec ce code.</p>
           <div class="row-buttons">
-            <button class="btn" id="btn-copy-code">Copier</button>
-            <button class="btn ghost" id="btn-new-code">Nouveau code</button>
+            <button class="btn" id="btn-copy-code" data-i18n="pair.copy">Copier</button>
+            <button class="btn ghost" id="btn-new-code" data-i18n="pair.new">Nouveau code</button>
           </div>
         </div>
         <div class="pair-right">
-          <div class="eyebrow">Adresse de cet ordinateur</div>
+          <div class="eyebrow" data-i18n="pair.address">Adresse de cet ordinateur</div>
           <div class="ips" id="ips"></div>
         </div>
       </div>
 
       <div class="group" id="pair-client">
-        <div class="group-label">Connexion au contrôleur</div>
+        <div class="group-label" data-i18n="pair.client.group">Connexion au contrôleur</div>
         <div class="list">
           <div class="row">
-            <div class="row-text"><div class="row-title">Code d'appairage</div><div class="row-sub">Affiché sur l'ordinateur contrôleur</div></div>
+            <div class="row-text"><div class="row-title" data-i18n="pair.code">Code d'appairage</div><div class="row-sub" data-i18n="pair.client.code.sub">Affiché sur l'ordinateur contrôleur</div></div>
             <input class="field code-field" id="in-code" maxlength="12" spellcheck="false" autocomplete="off">
           </div>
           <div class="row">
-            <div class="row-text"><div class="row-title">Adresse du contrôleur</div><div class="row-sub">Laisser vide pour la détection automatique</div></div>
-            <input class="field" id="in-host" placeholder="Automatique" spellcheck="false" autocomplete="off">
+            <div class="row-text"><div class="row-title" data-i18n="pair.client.host">Adresse du contrôleur</div><div class="row-sub" data-i18n="pair.client.host.sub">Laisser vide pour la détection automatique</div></div>
+            <input class="field" id="in-host" placeholder="Automatique" data-i18n-ph="pair.client.host.ph" spellcheck="false" autocomplete="off">
           </div>
         </div>
       </div>
 
       <div class="group" id="devices-group">
-        <div class="group-label">Ordinateurs</div>
+        <div class="group-label" data-i18n="devices.group">Ordinateurs</div>
         <div class="list" id="device-list"></div>
       </div>
     </section>
@@ -135,66 +135,75 @@
     <!-- RÉGLAGES -->
     <section class="view" id="view-settings">
       <div class="group">
-        <div class="group-label">Général</div>
+        <div class="group-label" data-i18n="set.general">Général</div>
         <div class="list">
           <div class="row">
-            <div class="row-text"><div class="row-title">Nom de cet ordinateur</div></div>
+            <div class="row-text"><div class="row-title" data-i18n="set.name">Nom de cet ordinateur</div></div>
             <input class="field" id="in-name" maxlength="40" spellcheck="false">
+          </div>
+          <div class="row">
+            <div class="row-text"><div class="row-title" data-i18n="set.language">Langue</div></div>
+            <div class="segmented three" id="lang-seg">
+              <span class="seg-thumb"></span>
+              <button data-lang="auto" data-i18n="set.language.auto">Auto</button>
+              <button data-lang="fr">Français</button>
+              <button data-lang="en">English</button>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="group server-only">
-        <div class="group-label">Contrôle</div>
+        <div class="group-label" data-i18n="set.control">Contrôle</div>
         <div class="list">
           <div class="row">
-            <div class="row-text"><div class="row-title">Vitesse du pointeur distant</div><div class="row-sub" id="speed-val">1.0×</div></div>
+            <div class="row-text"><div class="row-title" data-i18n="set.speed">Vitesse du pointeur distant</div><div class="row-sub" id="speed-val">1.0×</div></div>
             <input type="range" class="slider" id="in-speed" min="0.3" max="3" step="0.1">
           </div>
           <div class="row">
-            <div class="row-text"><div class="row-title">Inverser Ctrl et ⌘ entre Mac et PC</div><div class="row-sub">Vos raccourcis restent naturels sur chaque système</div></div>
+            <div class="row-text"><div class="row-title" data-i18n="set.swap">Inverser Ctrl et ⌘ entre Mac et PC</div><div class="row-sub" data-i18n="set.swap.sub">Vos raccourcis restent naturels sur chaque système</div></div>
             <label class="switch"><input type="checkbox" id="in-swap"><span></span></label>
           </div>
         </div>
       </div>
 
       <div class="group">
-        <div class="group-label">Partage</div>
+        <div class="group-label" data-i18n="set.sharing">Partage</div>
         <div class="list">
           <div class="row">
-            <div class="row-text"><div class="row-title">Presse-papiers partagé</div><div class="row-sub">Copiez du texte sur un ordinateur, collez-le sur l'autre</div></div>
+            <div class="row-text"><div class="row-title" data-i18n="set.clip">Presse-papiers partagé</div><div class="row-sub" data-i18n="set.clip.sub">Copiez du texte sur un ordinateur, collez-le sur l'autre</div></div>
             <label class="switch"><input type="checkbox" id="in-clip"><span></span></label>
           </div>
         </div>
       </div>
 
       <div class="group">
-        <div class="group-label">Réseau</div>
+        <div class="group-label" data-i18n="set.network">Réseau</div>
         <div class="list">
           <div class="row">
-            <div class="row-text"><div class="row-title">Port</div><div class="row-sub">Identique sur tous les ordinateurs</div></div>
+            <div class="row-text"><div class="row-title" data-i18n="set.port">Port</div><div class="row-sub" data-i18n="set.port.sub">Identique sur tous les ordinateurs</div></div>
             <input class="field small" id="in-port" inputmode="numeric">
           </div>
         </div>
       </div>
 
       <div class="group">
-        <div class="group-label">Raccourci</div>
+        <div class="group-label" data-i18n="set.shortcut">Raccourci</div>
         <div class="list">
           <div class="row">
-            <div class="row-text"><div class="row-title">Revenir à l'ordinateur contrôleur</div></div>
-            <div class="keys"><kbd>Ctrl</kbd><kbd id="kbd-alt">Alt</kbd><kbd>Échap</kbd></div>
+            <div class="row-text"><div class="row-title" data-i18n="set.home">Revenir à l'ordinateur contrôleur</div></div>
+            <div class="keys"><kbd>Ctrl</kbd><kbd id="kbd-alt">Alt</kbd><kbd data-i18n="key.esc">Échap</kbd></div>
           </div>
         </div>
       </div>
 
       <div class="group mac-only">
-        <div class="group-label">Autorisations macOS</div>
+        <div class="group-label" data-i18n="set.perms.group">Autorisations macOS</div>
         <div class="list">
           <div class="row">
-            <div class="row-text"><div class="row-title">Accessibilité et Surveillance de l'entrée</div>
-              <div class="row-sub" id="perm-sub">Réglages Système › Confidentialité et sécurité : autorisez MultiMouse dans les deux rubriques.</div></div>
-            <button class="btn" id="btn-perms" hidden>Ouvrir les réglages</button>
+            <div class="row-text"><div class="row-title" data-i18n="set.perms">Accessibilité et Surveillance de l'entrée</div>
+              <div class="row-sub" id="perm-sub" data-i18n="set.perms.sub">Réglages Système › Confidentialité et sécurité : autorisez MultiMouse dans les deux rubriques.</div></div>
+            <button class="btn" id="btn-perms" hidden data-i18n="set.perms.open">Ouvrir les réglages</button>
           </div>
         </div>
       </div>
@@ -205,6 +214,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<script src="i18n.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

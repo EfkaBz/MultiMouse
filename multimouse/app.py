@@ -16,6 +16,25 @@ def resource(*parts):
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), *parts)
 
 
+def system_language():
+    """'fr' when the system speaks French, otherwise 'en'."""
+    code = ""
+    try:
+        if pi.OS == "windows":
+            import ctypes
+            import locale
+            code = locale.windows_locale.get(ctypes.windll.kernel32.GetUserDefaultUILanguage(), "")
+        elif pi.OS == "mac":
+            from Foundation import NSLocale
+            code = str(NSLocale.preferredLanguages()[0])
+        else:
+            import locale
+            code = locale.getlocale()[0] or os.environ.get("LANG", "")
+    except Exception:
+        pass
+    return "fr" if code.lower().startswith("fr") else "en"
+
+
 def mac_permissions():
     """macOS privacy switches: Accessibility (inject input) and Input Monitoring (capture it)."""
     if pi.OS != "mac":
@@ -102,7 +121,8 @@ class Api:
         base = {"version": __version__, "os": pi.OS, "id": c["id"], "name": c["name"], "code": c["code"],
                 "port": c["port"], "server_host": c["server_host"], "clipboard": c["clipboard"],
                 "swap_ctrl_cmd": c["swap_ctrl_cmd"], "speed": c["speed"], "role": c["role"],
-                "permissions": self._perms}
+                "permissions": self._perms, "language": c["language"],
+                "lang": c["language"] if c["language"] in ("fr", "en") else system_language()}
         eng = self._engine
         if eng is not None:
             base.update(eng.state())
@@ -116,7 +136,7 @@ class Api:
 
     def set_setting(self, key, value):
         allowed = {"clipboard": bool, "swap_ctrl_cmd": bool, "speed": float, "name": str,
-                   "server_host": str, "code": str, "port": int}
+                   "server_host": str, "code": str, "port": int, "language": str}
         if key not in allowed:
             return False
         value = allowed[key](value)
@@ -128,6 +148,8 @@ class Api:
             value = value.strip()[:40] or self._cfg["name"]
         if key == "speed":
             value = min(max(value, 0.3), 3.0)
+        if key == "language" and value not in ("auto", "fr", "en"):
+            return False
         self._cfg.set(**{key: value})
         if key in ("code", "port", "clipboard"):
             threading.Thread(target=self._start_engine, daemon=True).start()

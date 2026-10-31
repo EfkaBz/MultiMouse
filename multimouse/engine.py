@@ -107,7 +107,8 @@ class ServerEngine:
             self._sock.listen(8)
             threading.Thread(target=self._accept_loop, daemon=True).start()
         except OSError as e:
-            self.error = f"Port {self.cfg['port']} indisponible ({e.strerror})"
+            self.error = "port"  # translated by the UI
+            log.error("port %s indisponible : %s", self.cfg["port"], e)
         self.beacon.start()
         if self.cfg["clipboard"]:
             self.clip.start()

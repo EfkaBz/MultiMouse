@@ -30,6 +30,49 @@ if OS == "windows":
 
     user32 = ctypes.windll.user32
 
+
+if OS == "windows":  # private handle: pseudo-handles need a pointer-sized return type
+    _k32 = ctypes.WinDLL("kernel32")
+    _k32.GetCurrentProcess.restype = _k32.GetCurrentThread.restype = wintypes.HANDLE
+    _k32.SetPriorityClass.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+    _k32.SetThreadPriority.argtypes = [wintypes.HANDLE, ctypes.c_int]
+    _k32.SetProcessInformation.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+
+
+def _keep_awake():
+    """Windows: never let the system throttle us in the background.
+
+    Low-level hooks must answer within ~300 ms or Windows silently removes them. When the
+    window is in the background (or minimized at startup) Windows 11 runs the process in
+    efficiency mode and the hook starts missing that deadline: the pointer then stops
+    switching until the app is brought to the front."""
+    if OS != "windows":
+        return
+    k32 = _k32
+    k32.SetPriorityClass(k32.GetCurrentProcess(), 0x80)  # HIGH_PRIORITY_CLASS
+
+    class PowerThrottling(ctypes.Structure):
+        _fields_ = [("Version", wintypes.ULONG), ("ControlMask", wintypes.ULONG), ("StateMask", wintypes.ULONG)]
+
+    # ControlMask EXECUTION_SPEED | IGNORE_TIMER_RESOLUTION with StateMask 0: always full speed
+    state = PowerThrottling(1, 0x1 | 0x4, 0)
+    k32.SetProcessInformation(k32.GetCurrentProcess(), 4, ctypes.byref(state), ctypes.sizeof(state))
+
+
+try:
+    _keep_awake()
+except Exception:
+    pass
+
+_prio = threading.local()
+
+
+def _time_critical():
+    """Run each hook thread at the highest priority, so it never misses the hook deadline."""
+    if not getattr(_prio, "set", False):
+        _prio.set = True
+        _k32.SetThreadPriority(_k32.GetCurrentThread(), 15)
+
 if OS == "mac":
     import AppKit  # shipped with pynput on macOS (pyobjc-framework-Cocoa / Quartz)
     import Quartz
@@ -394,6 +437,7 @@ class Capture:
     def _win_mouse(self, msg, data):
         self.last_event = time.monotonic()
         self.events += 1
+        _time_critical()
         if data.flags & LLMHF_INJECTED:
             return False
         if not self.remote:
@@ -422,6 +466,7 @@ class Capture:
         self._ml.suppress_event()
 
     def _win_key(self, msg, data):
+        _time_critical()
         if not self.remote or data.flags & 0x10:  # LLKHF_INJECTED
             return False
         vk, pressed = data.vkCode, msg in (WM_KEYDOWN, WM_SYSKEYDOWN)

@@ -124,6 +124,11 @@ h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; }
   transition: transform 0.35s var(--ease);
 }
 .segmented[data-value="client"] .seg-thumb { transform: translateX(100%); }
+.segmented.three { grid-template-columns: repeat(3, 1fr); }
+.segmented.three button { padding: 5px 12px; }
+.segmented.three .seg-thumb { width: calc((100% - 4px) / 3); }
+.segmented[data-value="fr"] .seg-thumb { transform: translateX(100%); }
+.segmented[data-value="en"] .seg-thumb { transform: translateX(200%); }
 @media (prefers-color-scheme: dark) { .seg-thumb { background: #636366; } }
 
 /* ---------- views ---------- */
