@@ -259,6 +259,7 @@ class ServerEngine:
         self.held_text_mods.clear()
         if nid == self.me:
             b = self.local
+            px, py = self._on_monitor(px, py)
             self.capture.set_remote(False, park_at=(b["x"] + px, b["y"] + py))
         else:
             self.rx, self.ry = float(px), float(py)
@@ -267,6 +268,19 @@ class ServerEngine:
             peer.send({"t": "enter"})
             peer.send({"t": "m", "x": px, "y": py})
         self.notify()
+
+    def _on_monitor(self, px, py):
+        """Nearest point that is really on a monitor. Monitors don't fill the bounding box
+        (one set lower than its neighbour leaves a gap), and Windows would push a cursor
+        placed in a gap onto whichever monitor is closest to it, not the one under it."""
+        def dist(m):
+            cx = min(max(px, m["x"]), m["x"] + m["w"] - 1)
+            cy = min(max(py, m["y"]), m["y"] + m["h"] - 1)
+            return (cx - px) ** 2 + (cy - py) ** 2
+
+        m = min(self.local["monitors"], key=dist)
+        return (min(max(px, m["x"] + 1), m["x"] + m["w"] - 2),
+                min(max(py, m["y"] + 1), m["y"] + m["h"] - 2))
 
     def _go_home(self):
         b = self.local
