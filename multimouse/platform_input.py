@@ -7,11 +7,14 @@ Capture (machine that owns the mouse):
 Injection (machine being controlled): absolute moves, buttons, wheel and keys.
 """
 import ctypes
+import logging
 import sys
 import threading
 import time
 
 from .config import os_kind
+
+log = logging.getLogger("multimouse")
 
 OS = os_kind()
 
@@ -248,15 +251,18 @@ def _signed16(v):
 def _win_layout():
     """Keyboard layout of the foreground window (each window can have its own)."""
     tid = user32.GetWindowThreadProcessId(user32.GetForegroundWindow(), None)
-    return user32.GetKeyboardLayout(tid)
+    return _kb32.GetKeyboardLayout(tid)
 
 
 if OS == "windows":
-    user32.GetKeyboardLayout.restype = ctypes.c_void_p
-    user32.ToUnicodeEx.argtypes = [ctypes.c_uint, ctypes.c_uint, ctypes.POINTER(ctypes.c_ubyte),
-                                   ctypes.c_wchar_p, ctypes.c_int, ctypes.c_uint, ctypes.c_void_p]
-    user32.VkKeyScanExW.argtypes = [ctypes.c_wchar, ctypes.c_void_p]
-    user32.VkKeyScanExW.restype = ctypes.c_short
+    # A private handle: ctypes.windll.user32 is shared with pynput, which calls ToUnicodeEx
+    # with its own argument types. Overriding them there breaks its keyboard listener.
+    _kb32 = ctypes.WinDLL("user32")
+    _kb32.GetKeyboardLayout.restype = ctypes.c_void_p
+    _kb32.ToUnicodeEx.argtypes = [ctypes.c_uint, ctypes.c_uint, ctypes.POINTER(ctypes.c_ubyte),
+                                  ctypes.c_wchar_p, ctypes.c_int, ctypes.c_uint, ctypes.c_void_p]
+    _kb32.VkKeyScanExW.argtypes = [ctypes.c_wchar, ctypes.c_void_p]
+    _kb32.VkKeyScanExW.restype = ctypes.c_short
 
 _NX_MEDIA = {0: "media_volume_up", 1: "media_volume_down", 7: "media_volume_mute", 16: "media_play_pause",
              17: "media_next", 18: "media_previous", 19: "media_next", 20: "media_previous"}
@@ -286,18 +292,31 @@ def _mac_guard(listener):
     return listener
 
 
+def _safe(fn):
+    def call(*args):
+        try:
+            fn(*args)
+        except Exception:
+            log.exception("erreur dans %s", getattr(fn, "__name__", fn))
+    return call
+
+
 class Capture:
     """Global hooks. Callbacks run on the hook thread and must stay fast."""
 
     def __init__(self, on_move, on_delta, on_button, on_scroll, on_key):
-        self.on_move, self.on_delta = on_move, on_delta
-        self.on_button, self.on_scroll, self.on_key = on_button, on_scroll, on_key
+        # An exception escaping a hook filter stops pynput's listener for good: the pointer
+        # would then never switch again. Log it and keep the hook alive instead.
+        self.on_move, self.on_delta = _safe(on_move), _safe(on_delta)
+        self.on_button, self.on_scroll, self.on_key = _safe(on_button), _safe(on_scroll), _safe(on_key)
         self.remote = False
         self.center = (0, 0)
         self._ml = self._kl = None
         self._held = set()        # Windows: modifier vks held while remote
         self._caps = False        # Windows: caps lock as seen by the remote machine
         self._hidden = False      # macOS: cursor hidden by us
+        self.last_event = time.monotonic()  # last mouse event seen by the hook (watchdog)
+        self.events = 0
 
     # -- lifecycle ---------------------------------------------------------
     def start(self):
@@ -315,10 +334,25 @@ class Capture:
 
     def stop(self):
         self.set_remote(False)
+        self._stop_listeners()
+
+    def _stop_listeners(self):
         for l in (self._ml, self._kl):
             if l:
-                l.stop()
+                try:
+                    l.stop()
+                except Exception:
+                    pass
         self._ml = self._kl = None
+
+    def alive(self):
+        return all(l is not None and l.is_alive() for l in (self._ml, self._kl))
+
+    def restart(self):
+        """Reinstall the hooks (Windows silently drops a hook it judged too slow)."""
+        self._stop_listeners()
+        self.last_event = time.monotonic()
+        self.start()
 
     def set_remote(self, remote, park_at=None):
         """Enter/leave remote mode. In remote mode the local cursor is frozen at screen center."""
@@ -358,6 +392,8 @@ class Capture:
 
     # -- Windows -----------------------------------------------------------
     def _win_mouse(self, msg, data):
+        self.last_event = time.monotonic()
+        self.events += 1
         if data.flags & LLMHF_INJECTED:
             return False
         if not self.remote:
@@ -417,7 +453,7 @@ class Capture:
             state[0x14] = 0x01
         buf = ctypes.create_unicode_buffer(8)
         # flag 4: leave the kernel dead-key state alone (Windows 10 1607+)
-        n = user32.ToUnicodeEx(vk, scan, state, buf, 8, 4, _win_layout())
+        n = _kb32.ToUnicodeEx(vk, scan, state, buf, 8, 4, _win_layout())
         ch = buf.value[:1]
         if n == 0 or not ch or not ch.isprintable() or not ch.strip() or n > 1:
             return None
@@ -425,6 +461,7 @@ class Capture:
 
     # -- macOS -------------------------------------------------------------
     def _mac_mouse(self, etype, event):
+        self.last_event = time.monotonic()
         if not self.remote:
             if etype in (Quartz.kCGEventMouseMoved, Quartz.kCGEventLeftMouseDragged,
                          Quartz.kCGEventRightMouseDragged, Quartz.kCGEventOtherMouseDragged):
@@ -724,7 +761,7 @@ class Injector:
 
     # Windows: retype the character with the local layout, adjusting Shift / AltGr around it
     def _win_type(self, ch, dead):
-        r = user32.VkKeyScanExW(ch, _win_layout())
+        r = _kb32.VkKeyScanExW(ch, _win_layout())
         vk, shift_state = r & 0xFF, (r >> 8) & 0xFF
         if r == -1 or vk == 0xFF or shift_state & ~0x07:
             try:  # not on this layout: Unicode input

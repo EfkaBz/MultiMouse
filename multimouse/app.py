@@ -1,5 +1,6 @@
 """Desktop window (pywebview) and the JS <-> Python bridge."""
 import json
+import logging
 import os
 import sys
 import threading
@@ -74,7 +75,11 @@ class Api:
                 self._engine.stop()
             cls = ServerEngine if self._cfg["role"] == "server" else ClientEngine
             self._engine = cls(self._cfg, self._notify)
-            self._engine.start()
+            try:
+                self._engine.start()
+            except Exception:
+                logging.getLogger("multimouse").exception("démarrage du moteur")
+                raise
         self._notify()
 
     def _notify(self):
@@ -190,9 +195,27 @@ def _already_running():
     return True
 
 
+def _setup_logging():
+    """Errors go to multimouse.log next to settings.json (the windowed app has no console)."""
+    import logging
+    from logging.handlers import RotatingFileHandler
+    from .config import config_dir
+    try:
+        handler = RotatingFileHandler(os.path.join(config_dir(), "multimouse.log"), maxBytes=256_000,
+                                      backupCount=1, encoding="utf-8")
+    except OSError:
+        return
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(threadName)s %(message)s"))
+    log = logging.getLogger("multimouse")
+    log.addHandler(handler)
+    log.setLevel(logging.INFO)
+    log.info("MultiMouse %s démarre (%s)", __version__, pi.OS)
+
+
 def main():
     if _already_running():
         return
+    _setup_logging()
     import webview
 
     api = Api()

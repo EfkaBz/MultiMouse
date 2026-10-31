@@ -4,6 +4,7 @@ Every machine is a rectangle in a shared virtual plane, sized with its real
 resolution and placed by the user in the layout editor. When the pointer hits an
 edge, the neighbour sharing that edge takes over at the matching position.
 """
+import logging
 import socket
 import threading
 import time
@@ -11,6 +12,8 @@ import time
 from . import platform_input as pi
 from .net import Beacon, Discovery, Peer, local_ips
 from .secure import Channel
+
+log = logging.getLogger("multimouse")
 
 SNAP = 48               # virtual px of tolerance between touching edges
 SWITCH_COOLDOWN = 0.2   # s, avoids ping-pong on the border
@@ -86,6 +89,8 @@ class ServerEngine:
         self.mods = set()
         self.held_text_mods = {}  # name -> already sent to the target
         self.last_switch = 0.0
+        self.edge_hits = 0
+        self._why_at = 0.0
         self.error = ""
         self._stop = threading.Event()
         self.capture = pi.Capture(self._on_move, self._on_delta, self._on_button, self._on_scroll, self._on_key)
@@ -107,6 +112,32 @@ class ServerEngine:
         if self.cfg["clipboard"]:
             self.clip.start()
         self.capture.start()
+        threading.Thread(target=self._watchdog, daemon=True, name="watchdog").start()
+
+    def _watchdog(self):
+        """The mouse hook can die silently (an error, or Windows dropping a hook it found too
+        slow): the pointer then never switches again. Reinstall it when the cursor moves but
+        the hook stops seeing anything."""
+        last_pos = None
+        beat = 0
+        while not self._stop.wait(1.0):
+            beat += 1
+            if beat % 600 == 0:
+                log.info("état : %d événements souris, %d contacts de bord, curseur %s, en ligne %s, actif %s",
+                         self.capture.events, self.edge_hits, pi.cursor_pos(), list(self.peers), self.active)
+            try:
+                if self.capture.remote:
+                    last_pos = None
+                    continue
+                pos = pi.cursor_pos()
+                quiet = time.monotonic() - self.capture.last_event > 1.5
+                recent_warp = time.monotonic() - self.last_switch < 2.0
+                if not self.capture.alive() or (quiet and last_pos and pos != last_pos and not recent_warp):
+                    log.warning("capture de la souris inactive : réinstallation des hooks")
+                    self.capture.restart()
+                last_pos = pos
+            except Exception:
+                log.exception("watchdog")
 
     def stop(self):
         self._stop.set()
@@ -156,6 +187,7 @@ class ServerEngine:
             if old and old is not peer:
                 old.close()
             peer.send({"t": "welcome", "name": self.cfg["name"], "id": self.me, "os": pi.OS})
+            log.info("connecté : %s (%s, %s)", msg["name"], msg["os"], peer.info.get("addr"))
             self.notify()
         elif t == "clip" and self.cfg["clipboard"]:
             self.clip.set(msg["text"])
@@ -218,6 +250,7 @@ class ServerEngine:
             px, py = v - x, (h - 2 if side == "top" else 1)
         px, py = min(max(px, 0), w - 1), min(max(py, 0), h - 1)
         self.last_switch = time.monotonic()
+        log.info("passage par le bord %s vers %s", side, self.nodes[nid]["name"])
         prev = self.active
         if prev != self.me and prev in self.peers:
             self.peers[prev].send({"t": "leave"})
@@ -279,7 +312,11 @@ class ServerEngine:
         side, lx, ly = self._outer_edge(x - b["x"], y - b["y"])
         if side is None:
             return
-        if time.monotonic() - self.last_switch < SWITCH_COOLDOWN or not self.peers or pi.buttons_down():
+        self.edge_hits += 1
+        if time.monotonic() - self.last_switch < SWITCH_COOLDOWN:
+            return
+        if not self.peers or pi.buttons_down():
+            self._why(side, x, y, f"peers={list(self.peers)} boutons={pi.buttons_down()}")
             return
         with self.lock:
             mx, my, _, _ = self.rect(self.me)
@@ -287,6 +324,16 @@ class ServerEngine:
             nid = self.neighbor(self.me, side, v)
             if nid:
                 self._switch(nid, side, v)
+            else:
+                self._why(side, x, y, f"aucun voisin à v={v} ; disposition={self.layout} "
+                                      f"en ligne={list(self.peers)} écrans={self.local}")
+
+    def _why(self, side, x, y, reason):
+        """Log, at most every 2 s, why touching an edge did not switch."""
+        now = time.monotonic()
+        if now - self._why_at > 2:
+            self._why_at = now
+            log.debug("bord %s touché en (%d, %d) sans passage : %s", side, x, y, reason)
 
     def _on_delta(self, dx, dy):
         with self.lock:

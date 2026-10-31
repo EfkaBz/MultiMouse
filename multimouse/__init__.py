@@ -1,2 +1,2 @@
-__version__ = "1.0.3"
+__version__ = "1.0.6"
 APP_NAME = "MultiMouse"

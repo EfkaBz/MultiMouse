@@ -1,13 +1,15 @@
 """Peers, LAN discovery and the TCP accept loop."""
 import json
+import logging
 import queue
 import socket
 import threading
 import time
 
-from .secure import Channel
+from .secure import AuthError, Channel
 
 DISCOVERY_PORT = 24801
+log = logging.getLogger("multimouse")
 
 
 class Peer:
@@ -49,8 +51,12 @@ class Peer:
         try:
             while not self._closed.is_set():
                 self._on_message(self, self.ch.recv())
+        except AuthError:
+            log.warning("%s refusé : code d'appairage différent", self.info.get("addr"))
+        except (ConnectionError, OSError) as e:
+            log.info("connexion %s fermée : %s", self.info.get("addr") or self.info.get("id"), e)
         except Exception:
-            pass
+            log.exception("erreur en traitant un message de %s", self.info)
         self.close()
 
     def close(self):
