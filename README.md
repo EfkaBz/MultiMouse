@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/EfkaBz/MultiMouse/releases/latest"><img src="https://img.shields.io/github/v/release/EfkaBz/MultiMouse?label=version&color=5856D6" alt="Version"></a>
+  <a href="https://github.com/EfkaBz/MultiMouse/releases/latest"><img src="https://img.shields.io/github/v/release/EfkaBz/MultiMouse?label=version&color=5856D6&cacheSeconds=3600" alt="Version"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/macOS-11%2B-000000?logo=apple&logoColor=white" alt="macOS 11+">
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
