@@ -1,6 +1,7 @@
-"""Render the README screenshots (docs/captures) with headless Chrome or Edge.
+"""Render the README screenshots with headless Chrome or Edge.
 
-    python tools/screenshots.py
+    python tools/screenshots.py     # English interface -> docs/captures/en (README.md)
+                                    # French interface  -> docs/captures/fr (README.fr.md)
 """
 import functools
 import http.server
@@ -12,7 +13,7 @@ import threading
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "docs", "captures")
+CAPTURES = os.path.join(ROOT, "docs", "captures")
 
 PAGES = {  # file prefix -> query string for tools/shot.html
     "screens": "view=screens",
@@ -20,8 +21,8 @@ PAGES = {  # file prefix -> query string for tools/shot.html
     "settings": "view=settings",
     "client": "role=client&os=mac&view=screens",
 }
-SHOTS = [(f"{page}-{theme}.png", f"{query}&theme={theme}", theme == "dark")
-         for page, query in PAGES.items() for theme in ("light", "dark")]
+SHOTS = [(os.path.join(lang, f"{page}-{theme}.png"), f"{query}&theme={theme}&lang={lang}", theme == "dark")
+         for lang in ("en", "fr") for page, query in PAGES.items() for theme in ("light", "dark")]
 
 
 def browser():
@@ -33,7 +34,8 @@ def browser():
 
 
 def main():
-    os.makedirs(OUT, exist_ok=True)
+    for lang in ("en", "fr"):
+        os.makedirs(os.path.join(CAPTURES, lang), exist_ok=True)
     class Quiet(http.server.SimpleHTTPRequestHandler):
         def log_message(self, *a):
             pass
@@ -43,11 +45,11 @@ def main():
     port = srv.server_address[1]
     exe = browser()
     for name, query, dark in SHOTS:
-        path = os.path.join(OUT, name)
+        path = os.path.join(CAPTURES, name)
         profile = tempfile.mkdtemp(prefix="mm-shot-")  # a fresh profile: no hand-off to a running browser
         args = [exe, "--headless=new", f"--user-data-dir={profile}", "--no-first-run", "--disable-gpu",
                 "--hide-scrollbars", "--force-device-scale-factor=2",
-                "--window-size=1300,860", "--virtual-time-budget=4000", f"--screenshot={path}",
+                "--window-size=1300,860", "--virtual-time-budget=8000", f"--screenshot={path}",
                 f"http://127.0.0.1:{port}/tools/shot.html?{query}"]
         if dark:
             args.insert(1, "--force-dark-mode")

@@ -21,27 +21,29 @@
 <div class="win"><iframe id="app" src="../multimouse/ui/index.html"></iframe></div>
 <script>
 const q = new URLSearchParams(location.search);
+const EN = q.get("lang") === "en";
+const PC_NAME = EN ? "Desktop PC" : "PC Bureau", LAPTOP_NAME = EN ? "Laptop" : "PC Portable";
 const role = q.get("role") || "server";
 const base = {
-  version: "1.0.8", os: q.get("os") || "windows", id: "pc", name: "PC Bureau", code: "K7M4QX", port: 24800,
+  version: "1.0.8", os: q.get("os") || "windows", id: "pc", name: PC_NAME, code: "K7M4QX", port: 24800,
   server_host: "", clipboard: true, swap_ctrl_cmd: true, speed: 1.2, role, permissions: null,
   language: q.get("lang") || "auto", lang: q.get("lang") || "fr", theme: q.get("apptheme") || "auto",
 };
 const server = {
   ...base, error: "", connected: 2, ips: ["192.168.1.20"],
   nodes: [
-    { id: "pc", name: "PC Bureau", w: 7280, h: 1440, os: "windows", x: 0, y: 0, online: true, me: true, active: false,
+    { id: "pc", name: PC_NAME, w: 7280, h: 1440, os: "windows", x: 0, y: 0, online: true, me: true, active: false,
       monitors: [{ x: 0, y: 170, w: 1920, h: 1080 }, { x: 1920, y: 0, w: 3440, h: 1440 }, { x: 5360, y: 234, w: 1920, h: 1080 }] },
     { id: "mbp", name: "MacBook Pro", w: 1800, h: 1169, os: "mac", x: 1950, y: -1169, online: true, me: false,
       active: true, addr: "192.168.1.31", monitors: [] },
-    { id: "laptop", name: "PC Portable", w: 1920, h: 1080, os: "windows", x: 3770, y: -1080, online: true, me: false,
+    { id: "laptop", name: LAPTOP_NAME, w: 1920, h: 1080, os: "windows", x: 3770, y: -1080, online: true, me: false,
       active: false, addr: "192.168.1.42", monitors: [] },
   ],
 };
 const client = {
   ...base, id: "mbp", name: "MacBook Pro", os: "mac", permissions: { accessibility: true, input: true },
-  status: "connected", server_name: "PC Bureau", server_addr: "192.168.1.20", active: true,
-  servers: [{ addr: "192.168.1.20", name: "PC Bureau", port: 24800 }],
+  status: "connected", server_name: PC_NAME, server_addr: "192.168.1.20", active: true,
+  servers: [{ addr: "192.168.1.20", name: PC_NAME, port: 24800 }],
   screen: { w: 1800, h: 1169, monitors: [] },
 };
 // theme=light|dark: drop the other scheme's rules so the result does not depend on the OS setting
@@ -61,6 +63,10 @@ const theme = q.get("theme") === "light" ? "light" : null;
 if (theme) forceTheme(document, theme);
 document.getElementById("app").addEventListener("load", (e) => {
   const w = e.target.contentWindow;
+  // Headless Chrome does not always advance CSS animations: show every element in its final state
+  const still = w.document.createElement("style");
+  still.textContent = "*, *::before, *::after { animation-duration: 0s !important; animation-delay: 0s !important; transition: none !important; }";
+  w.document.head.appendChild(still);
   if (theme) forceTheme(w.document, theme);
   w.mm.update(role === "server" ? server : client);
   const view = q.get("view");

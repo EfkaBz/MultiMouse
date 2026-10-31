@@ -1,12 +1,16 @@
 <p align="center">
-  <img src="multimouse/assets/icon.png" width="112" alt="Icône MultiMouse">
+  <img src="multimouse/assets/icon.png" width="112" alt="MultiMouse icon">
 </p>
 
 <h1 align="center">MultiMouse</h1>
 
 <p align="center">
-  <b>Une souris, un clavier, tous vos ordinateurs.</b><br>
-  Pilotez plusieurs PC et Mac sur le même réseau en glissant simplement le pointeur d'un écran à l'autre.
+  <b>🇬🇧 English</b> · <a href="README.fr.md">🇫🇷 Français</a>
+</p>
+
+<p align="center">
+  <b>One mouse, one keyboard, all your computers.</b><br>
+  Control several PCs and Macs on the same network by simply sliding the pointer from one screen to the next.
 </p>
 
 <p align="center">
@@ -17,109 +21,117 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/EfkaBz/MultiMouse/releases/latest"><b>⬇&nbsp;&nbsp;Télécharger MultiMouse</b></a>
+  <a href="https://github.com/EfkaBz/MultiMouse/releases/latest"><b>⬇&nbsp;&nbsp;Download MultiMouse</b></a>
 </p>
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/captures/screens-dark.png">
-    <img src="docs/captures/screens-light.png" width="860" alt="Disposition des écrans dans MultiMouse">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/captures/en/screens-dark.png">
+    <img src="docs/captures/en/screens-light.png" width="860" alt="Screen layout in MultiMouse">
   </picture>
 </p>
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Features
 
 | | |
 |---|---|
-| 🖥️ **Disposition visuelle** | Glissez vos ordinateurs pour reproduire votre bureau. Les écrans s'aimantent bord à bord et le multi-écran est pris en charge. |
-| 🖱️ **Passage naturel** | Le pointeur passe d'un ordinateur à l'autre par les bords qui se touchent, sans raccourci ni bouton. |
-| 🔀 **Windows et macOS** | Windows ↔ Windows, Windows ↔ Mac, Mac ↔ Mac. Ctrl et ⌘ sont inversés automatiquement entre PC et Mac. |
-| ⌨️ **Clavier fidèle** | Les caractères sont transmis tels quels : AZERTY, QWERTY, AltGr et touches mortes fonctionnent même entre PC et Mac. |
-| 📋 **Presse-papiers partagé** | Copiez du texte sur un ordinateur, collez-le sur l'autre. |
-| 🔒 **Chiffré** | Toutes les communications sont chiffrées (AES-256-GCM) avec un code d'appairage. |
-| 📡 **Zéro configuration** | Les ordinateurs se trouvent tout seuls sur le réseau local. |
-| 🎨 **Interface épurée** | Thème clair et sombre automatique, animations discrètes. |
+| 🖥️ **Visual layout** | Drag your computers to match your desk. Screens snap edge to edge, and multi-monitor setups are supported. |
+| 🖱️ **Natural switching** | The pointer moves from one computer to another across the edges that touch, with no shortcut or button. |
+| 🔀 **Windows and macOS** | Windows ↔ Windows, Windows ↔ Mac, Mac ↔ Mac. Ctrl and ⌘ are swapped automatically between PC and Mac. |
+| ⌨️ **Faithful keyboard** | Characters are sent as typed: AZERTY, QWERTY, AltGr and dead keys work, even between PC and Mac. |
+| 📋 **Shared clipboard** | Copy text on one computer, paste it on another. |
+| 🔒 **Encrypted** | All traffic is encrypted (AES-256-GCM) with a pairing code. |
+| 📡 **Zero configuration** | Computers find each other on the local network. |
+| 🎨 **Clean interface** | English or French, light, dark or automatic theme, subtle animations. |
 
-## 🚀 Démarrage en 3 étapes
+## 🚀 Get started in 3 steps
 
-1. **Installez** MultiMouse sur chaque ordinateur ([Windows : `MultiMouse-Setup.exe`, Mac : `MultiMouse.dmg`](https://github.com/EfkaBz/MultiMouse/releases/latest)).
-2. Sur l'ordinateur qui a la souris, choisissez **Contrôleur**. Sur les autres, choisissez **Contrôlé** et saisissez le **code d'appairage** affiché par le contrôleur.
-3. Dans **Écrans**, placez les ordinateurs comme sur votre bureau. C'est tout : amenez le pointeur au bord de l'écran.
+1. **Install** MultiMouse on every computer ([Windows: `MultiMouse-Setup.exe`, Mac: `MultiMouse.dmg`](https://github.com/EfkaBz/MultiMouse/releases/latest)).
+2. On the computer with the mouse, choose **Controller**. On the others, choose **Controlled** and enter the **pairing code** shown by the controller.
+3. In **Screens**, arrange the computers the way they sit on your desk. That's it: move the pointer to the edge of the screen.
 
-> **Raccourci de secours** : <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Échap</kbd> ramène toujours le pointeur sur l'ordinateur contrôleur.
+> **Emergency shortcut**: <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Esc</kbd> always brings the pointer back to the controller.
 
-## 📸 Aperçu
+## 📸 Preview
 
 <table>
   <tr>
     <td width="50%" align="center">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/captures/devices-dark.png">
-        <img src="docs/captures/devices-light.png" alt="Appareils et code d'appairage">
+        <source media="(prefers-color-scheme: dark)" srcset="docs/captures/en/devices-dark.png">
+        <img src="docs/captures/en/devices-light.png" alt="Devices and pairing code">
       </picture>
-      <br><sub><b>Appareils</b> : code d'appairage et ordinateurs connectés</sub>
+      <br><sub><b>Devices</b>: pairing code and connected computers</sub>
     </td>
     <td width="50%" align="center">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/captures/client-dark.png">
-        <img src="docs/captures/client-light.png" alt="Ordinateur contrôlé">
+        <source media="(prefers-color-scheme: dark)" srcset="docs/captures/en/client-dark.png">
+        <img src="docs/captures/en/client-light.png" alt="Controlled computer">
       </picture>
-      <br><sub><b>Contrôlé</b> : un Mac piloté par la souris du PC</sub>
+      <br><sub><b>Controlled</b>: a Mac driven by the PC's mouse</sub>
     </td>
   </tr>
   <tr>
     <td colspan="2" align="center">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/captures/settings-dark.png">
-        <img src="docs/captures/settings-light.png" width="65%" alt="Réglages">
+        <source media="(prefers-color-scheme: dark)" srcset="docs/captures/en/settings-dark.png">
+        <img src="docs/captures/en/settings-light.png" width="65%" alt="Settings">
       </picture>
-      <br><sub><b>Réglages</b> : vitesse du pointeur, Ctrl ↔ ⌘, presse-papiers</sub>
+      <br><sub><b>Settings</b>: language, theme, pointer speed, Ctrl ↔ ⌘, clipboard</sub>
     </td>
   </tr>
 </table>
 
-## 💡 Bon à savoir
+## 💡 Good to know
 
 <details>
-<summary><b>macOS : autorisations</b></summary>
+<summary><b>macOS: permissions</b></summary>
 
-<br>MultiMouse a besoin de deux autorisations dans **Réglages Système › Confidentialité et sécurité** :
+<br>MultiMouse needs two permissions in **System Settings › Privacy & Security**:
 
-- **Accessibilité** : pour déplacer le pointeur et taper au clavier sur ce Mac ;
-- **Surveillance de l'entrée** : pour capter la souris et le clavier quand le Mac est contrôleur.
+- **Accessibility**: to move the pointer and type on this Mac;
+- **Input Monitoring**: to capture the mouse and keyboard when the Mac is the controller.
 
-L'app n'est pas signée par un compte développeur Apple : au premier lancement, ouvrez-la avec clic droit › **Ouvrir**, ou via **Ouvrir quand même** dans Confidentialité et sécurité.
+The app is not signed with an Apple developer account: the first time, open it with right-click › **Open**, or with **Open Anyway** in Privacy & Security.
 </details>
 
 <details>
-<summary><b>Réseau et pare-feu</b></summary>
+<summary><b>Windows: administrator rights and antivirus</b></summary>
 
-<br>Les ordinateurs doivent être sur le même réseau local. MultiMouse utilise le port **TCP 24800** (contrôle) et **UDP 24801** (détection automatique). L'installateur Windows ouvre le pare-feu pour les réseaux privés. Si la détection automatique est bloquée, saisissez l'adresse IP du contrôleur dans l'onglet **Appareils**.
+<br>Windows does not pass the mouse to a normal program while a window running as administrator is in front (Task Manager, an app started as administrator…). So that the pointer always switches, the installer creates a "MultiMouse" scheduled task that starts the app with administrator rights, without a confirmation prompt at each launch.
+
+The installer is not digitally signed: Windows Defender or SmartScreen may flag it by mistake (automatic "!ml" detection). You can restore it from **Windows Security › Protection history**.
 </details>
 
 <details>
-<summary><b>Sécurité</b></summary>
+<summary><b>Network and firewall</b></summary>
 
-<br>Une clé de session est dérivée du code d'appairage (scrypt) et de valeurs aléatoires échangées à chaque connexion. Chaque message est ensuite chiffré et authentifié en AES-256-GCM : un ordinateur qui n'a pas le bon code est refusé avant de pouvoir envoyer le moindre événement. Le code ne circule jamais sur le réseau.
+<br>The computers must be on the same local network. MultiMouse uses port **TCP 24800** (control) and **UDP 24801** (automatic discovery). The Windows installer opens the firewall for private networks. If automatic discovery is blocked, enter the controller's IP address in the **Devices** tab.
 </details>
 
 <details>
-<summary><b>Limites actuelles</b></summary>
+<summary><b>Security</b></summary>
+
+<br>A session key is derived from the pairing code (scrypt) and random values exchanged at each connection. Every message is then encrypted and authenticated with AES-256-GCM: a computer without the right code is refused before it can send a single event. The code never travels over the network.
+</details>
+
+<details>
+<summary><b>Current limitations</b></summary>
 
 <br>
 
-- On ne peut pas glisser un fichier d'un ordinateur à l'autre (pas de changement d'ordinateur bouton enfoncé).
-- Le presse-papiers partagé transmet du texte uniquement.
+- You can't drag a file from one computer to another (no switching while a button is held).
+- The shared clipboard carries text only.
 </details>
 
-## 🛠️ Développement
+## 🛠️ Development
 
 <details>
-<summary><b>Lancer depuis les sources</b></summary>
+<summary><b>Run from source</b></summary>
 
-<br>Python 3.10 ou plus récent.
+<br>Python 3.10 or newer.
 
 ```bash
 python -m pip install -r requirements.txt
@@ -128,40 +140,40 @@ python -m multimouse
 </details>
 
 <details>
-<summary><b>Compiler l'application et l'installateur</b></summary>
+<summary><b>Build the app and the installer</b></summary>
 
 <br>
 
 ```bash
 python -m pip install -r requirements.txt pyinstaller pillow
-python build.py                 # dossier MultiMouse/ (Windows) ou MultiMouse.app (macOS) dans dist/
-python build.py --installer     # + MultiMouse-Setup-x.y.z.exe (Windows, Inno Setup 6) ou MultiMouse-x.y.z.dmg (macOS)
-python build.py --out <dossier> # résultats ailleurs que dans dist/
+python build.py                 # MultiMouse/ folder (Windows) or MultiMouse.app (macOS) in dist/
+python build.py --installer     # + MultiMouse-Setup-x.y.z.exe (Windows, Inno Setup 6) or MultiMouse-x.y.z.dmg (macOS)
+python build.py --out <folder>  # output somewhere other than dist/
 ```
 
-L'application macOS se compile sur un Mac. Une fois par Mac, lancez `sh tools/make_mac_cert.sh` : il crée le certificat « MultiMouse Code Signing » avec lequel `build.py` signe l'app, pour que macOS conserve les autorisations d'une version à l'autre.
+The macOS app is built on a Mac. Once per Mac, run `sh tools/make_mac_cert.sh`: it creates the "MultiMouse Code Signing" certificate that `build.py` signs the app with, so macOS keeps the permissions from one version to the next.
 
-Les captures de ce README se régénèrent avec `python tools/screenshots.py` (Chrome ou Edge requis).
+The README screenshots (English and French) are regenerated with `python tools/screenshots.py` (Chrome or Edge required).
 </details>
 
 <details>
-<summary><b>Structure du projet</b></summary>
+<summary><b>Project layout</b></summary>
 
 <br>
 
 ```
 multimouse/
-  app.py              fenêtre (pywebview) et pont JavaScript ↔ Python
-  engine.py           contrôleur / contrôlé, disposition, passage d'un écran à l'autre
-  platform_input.py   capture et injection souris / clavier (Windows, macOS)
-  secure.py           canal TCP chiffré
-  net.py              connexions, détection réseau
-  config.py           réglages persistants
-  ui/                 interface (HTML / CSS / JS)
-  assets/             icônes
-installer/            script Inno Setup (Windows), fond du .dmg (mac/)
-tools/                icônes, fond du .dmg, certificat Mac, captures d'écran
-docs/captures/     images de ce README
-build.py              compilation
+  app.py              window (pywebview) and JavaScript ↔ Python bridge
+  engine.py           controller / controlled, layout, crossing from one screen to another
+  platform_input.py   mouse / keyboard capture and injection (Windows, macOS)
+  secure.py           encrypted TCP channel
+  net.py              connections, network discovery
+  config.py           persistent settings
+  ui/                 interface (HTML / CSS / JS), English and French texts (i18n.js)
+  assets/             icons
+installer/            Inno Setup script (Windows), .dmg background (mac/)
+tools/                icons, .dmg background, Mac certificate, screenshots
+docs/captures/        README images (en/, fr/)
+build.py              build
 ```
 </details>
